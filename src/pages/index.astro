@@ -1,0 +1,58 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthorCard from "@components/AuthorCard.astro";
+import { getAuthorPostMap } from "@lib/content";
+
+const authorEntries = await getAuthorPostMap();
+const totalPosts = authorEntries.reduce(
+  (sum, entry) => sum + entry.posts.length,
+  0,
+);
+---
+
+<BaseLayout
+  title="投稿者一覧"
+  description="ゴールドシチー生誕祭向けの投稿を、投稿者ごとに静かに読み進められる完全静的アーカイブです。"
+>
+  <section class="hero-panel">
+    <p class="eyebrow">Gold City Birthday 2026</p>
+    <h1>投稿者ごとの温度で、祝福のことばを読む。</h1>
+    <p class="lead">
+      このサイトは、ゴールドシチー生誕祭に寄せられた文章やギャラリーを、投稿者単位でゆっくり閲覧するための静的アーカイブです。スマートフォンでの読み心地を最優先に、余白と行間をたっぷり使って整えています。
+    </p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <strong>{authorEntries.length}</strong>
+        <span>投稿者</span>
+      </div>
+      <div class="stat-card">
+        <strong>{totalPosts}</strong>
+        <span>公開中の投稿</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-stack">
+    <div class="section-copy">
+      <p class="eyebrow">Authors</p>
+      <h2>参加している投稿者</h2>
+      <p>
+        プロフィールごとにまとめて管理できるので、今後 10〜30 件程度まで投稿が増えても見通しを保ちやすい構成です。
+      </p>
+    </div>
+
+    <div class="authors-grid">
+      {authorEntries.map(({ author, posts, latestPost }) => (
+        <AuthorCard
+          author={author}
+          postCount={posts.length}
+          latestPostDate={
+            latestPost ? latestPost.data.updatedAt ?? latestPost.data.publishedAt : undefined
+          }
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+

@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatJapaneseDate } from "@lib/dates";
+import { postPath, withBase } from "@lib/paths";
+import { splitPostId } from "@lib/content";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props;
+const { authorId, slug } = splitPostId(post.id);
+const thumbnail = post.data.gallery[0];
+const updatedAt = post.data.updatedAt ?? post.data.publishedAt;
+---
+
+<article class="card post-card">
+  <a class="card-link-cover" href={postPath(authorId, slug)}>
+    <span class="sr-only">{post.data.title} を読む</span>
+  </a>
+
+  {
+    thumbnail && (
+      <img
+        class="post-card-image"
+        src={withBase(thumbnail.src)}
+        alt={thumbnail.alt}
+        width="960"
+        height="640"
+        loading="lazy"
+      />
+    )
+  }
+
+  <div class="post-card-body">
+    <div class="meta-row">
+      <span class="pill">{formatJapaneseDate(updatedAt)}</span>
+      <span class="meta-note">{post.data.gallery.length}枚のギャラリー</span>
+    </div>
+    <h2>{post.data.title}</h2>
+    <p>{post.data.summary}</p>
+  </div>
+</article>
+

@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { withBase } from "@lib/paths";
+---
+
+<BaseLayout
+  title="ページが見つかりません"
+  description="指定されたページは存在しません。"
+>
+  <section class="hero-panel compact-hero">
+    <p class="eyebrow">404</p>
+    <h1>ページが見つかりませんでした。</h1>
+    <p class="lead slim">
+      リンク先が変更されたか、URL が誤っている可能性があります。投稿者一覧から目的のページへ戻れます。
+    </p>
+    <a class="button-link" href={withBase("/")}>投稿者一覧へ戻る</a>
+  </section>
+</BaseLayout>

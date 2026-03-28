@@ -1,0 +1,66 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import PostCard from "@components/PostCard.astro";
+import { getAuthorById, getAuthors, getPostsByAuthor } from "@lib/content";
+import { withBase } from "@lib/paths";
+
+export async function getStaticPaths() {
+  const authors = await getAuthors();
+
+  return authors.map((author) => ({
+    params: { authorId: author.id },
+  }));
+}
+
+const { authorId } = Astro.params;
+
+if (!authorId) {
+  throw new Error("authorId parameter is required.");
+}
+
+const author = await getAuthorById(authorId);
+const posts = await getPostsByAuthor(authorId);
+
+if (!author) {
+  throw new Error(`Author not found: ${authorId}`);
+}
+---
+
+<BaseLayout
+  title={`${author.data.name} の投稿`}
+  description={`${author.data.name} さんの投稿一覧ページです。`}
+>
+  <section class="hero-panel compact-hero">
+    <a class="text-link" href={withBase("/")}>投稿者一覧へ戻る</a>
+
+    <div class="author-hero">
+      <img
+        class="author-avatar large"
+        src={withBase(author.data.avatar)}
+        alt={`${author.data.name} のアイコン`}
+        width="108"
+        height="108"
+      />
+
+      <div class="author-hero-copy">
+        <p class="eyebrow">{author.data.reading}</p>
+        <h1>{author.data.name}</h1>
+        <p class="lead slim">{author.data.tagline}</p>
+        <p class="author-bio">{author.data.bio}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-stack">
+    <div class="section-copy">
+      <p class="eyebrow">Posts</p>
+      <h2>この投稿者の公開記事</h2>
+      <p>{posts.length}件の投稿を新しい順に表示しています。</p>
+    </div>
+
+    <div class="posts-grid">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>
+

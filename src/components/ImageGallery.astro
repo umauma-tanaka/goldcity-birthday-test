@@ -1,0 +1,47 @@
+---
+import { withBase } from "@lib/paths";
+
+interface GalleryItem {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+interface Props {
+  items: GalleryItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section class="gallery-section">
+      <div class="section-copy">
+        <p class="eyebrow">Gallery</p>
+        <h2>添えられたイメージ</h2>
+      </div>
+
+      <div class="gallery-grid">
+        {items.map((item) => (
+          <a
+            class="gallery-card"
+            href={withBase(item.src)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src={withBase(item.src)}
+              alt={item.alt}
+              width="1200"
+              height="900"
+              loading="lazy"
+            />
+            {(item.caption || item.alt) && <p>{item.caption ?? item.alt}</p>}
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+

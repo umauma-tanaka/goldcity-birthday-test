@@ -1,0 +1,87 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import ImageGallery from "@components/ImageGallery.astro";
+import {
+  getAuthorById,
+  getPosts,
+  splitPostId,
+} from "@lib/content";
+import { formatJapaneseDate } from "@lib/dates";
+import { authorPath, withBase } from "@lib/paths";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+
+  return posts.map((post) => {
+    const { authorId, slug } = splitPostId(post.id);
+
+    return {
+      params: { authorId, slug },
+    };
+  });
+}
+
+const { authorId, slug } = Astro.params;
+
+if (!authorId || !slug) {
+  throw new Error("authorId and slug parameters are required.");
+}
+
+const posts = await getPosts();
+const post = posts.find((entry) => entry.id === `${authorId}/${slug}`);
+const author = await getAuthorById(authorId);
+
+if (!post || !author) {
+  throw new Error(`Post not found: ${authorId}/${slug}`);
+}
+
+const { Content } = await post.render();
+const leadImage = post.data.gallery[0];
+const updatedAt = post.data.updatedAt ?? post.data.publishedAt;
+---
+
+<BaseLayout title={post.data.title} description={post.data.summary}>
+  <article class="article-shell">
+    <nav class="breadcrumbs">
+      <a href={withBase("/")}>投稿者一覧</a>
+      <span>/</span>
+      <a href={authorPath(author.id)}>{author.data.name}</a>
+    </nav>
+
+    <header class="article-header">
+      <p class="eyebrow">{author.data.name}</p>
+      <h1>{post.data.title}</h1>
+      <p class="lead slim">{post.data.summary}</p>
+
+      <div class="meta-row">
+        <span class="pill">公開 {formatJapaneseDate(post.data.publishedAt)}</span>
+        <span class="meta-note">更新 {formatJapaneseDate(updatedAt)}</span>
+      </div>
+    </header>
+
+    {
+      leadImage && (
+        <figure class="hero-image-card">
+          <img
+            src={withBase(leadImage.src)}
+            alt={leadImage.alt}
+            width="1280"
+            height="840"
+          />
+          {(leadImage.caption || leadImage.alt) && (
+            <figcaption>{leadImage.caption ?? leadImage.alt}</figcaption>
+          )}
+        </figure>
+      )
+    }
+
+    <div class="prose-wrap">
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    <ImageGallery items={post.data.gallery} />
+  </article>
+</BaseLayout>
+

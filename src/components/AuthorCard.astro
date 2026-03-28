@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatJapaneseDate } from "@lib/dates";
+import { authorPath, withBase } from "@lib/paths";
+
+interface Props {
+  author: CollectionEntry<"authors">;
+  postCount: number;
+  latestPostDate?: Date;
+}
+
+const { author, postCount, latestPostDate } = Astro.props;
+---
+
+<article class="card author-card">
+  <a class="card-link-cover" href={authorPath(author.id)}>
+    <span class="sr-only">{author.data.name} さんのページへ</span>
+  </a>
+
+  <div class="author-card-top">
+    <img
+      class="author-avatar"
+      src={withBase(author.data.avatar)}
+      alt={`${author.data.name} のアイコン`}
+      width="88"
+      height="88"
+      loading="lazy"
+    />
+
+    <div class="author-card-copy">
+      <p class="eyebrow">{author.data.reading}</p>
+      <h2>{author.data.name}</h2>
+      <p class="author-tagline">{author.data.tagline}</p>
+    </div>
+  </div>
+
+  <p class="author-bio">{author.data.bio}</p>
+
+  <div class="meta-row">
+    <span class="pill">{postCount}件の投稿</span>
+    {
+      latestPostDate && (
+        <span class="meta-note">最終更新 {formatJapaneseDate(latestPostDate)}</span>
+      )
+    }
+  </div>
+</article>
+
